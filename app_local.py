@@ -1,11 +1,6 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import random, string, time
-import eventlet
-from eventlet import wsgi
-
-# Eventlet monkey-patches standard library modules for better concurrency support.
-eventlet.monkey_patch()
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -17,19 +12,23 @@ words = {
     "Cities": ["Paris", "New York", "Tokyo", "Berlin"]
 }
 
+
 def generate_lobby_code():
     while True:
         code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
         if code not in lobbies:  # Ensure code is unique
             return code
 
+
 def get_random_avatar():
     # Using RoboHash to generate a random funny avatar
     return f"https://robohash.org/{random.randint(1, 100000)}.png?size=50x50"
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @socketio.on('create_lobby')
 def create_lobby(host):
@@ -46,6 +45,7 @@ def create_lobby(host):
     join_room(code)
     lobbies[code]['players'][host] = {"role": "Waiting", "word": "", "avatar": get_random_avatar()}
     emit("lobby_created", {"code": code, "host": host}, room=code)
+
 
 @socketio.on('join_lobby')
 def join_lobby(data):
@@ -67,6 +67,7 @@ def join_lobby(data):
     join_room(code)
     lobbies[code]['players'][username] = {"role": "Waiting", "word": "", "avatar": get_random_avatar()}
     emit("update_players", lobbies[code]['players'], room=code)
+
 
 @socketio.on('start_game')
 def start_game(data):
@@ -96,6 +97,7 @@ def start_game(data):
         emit("game_started", lobbies[code]['players'], room=code)
         socketio.start_background_task(game_timer, code, duration)
 
+
 def game_timer(code, duration):
     remaining = duration
     while remaining >= 0:
@@ -104,12 +106,14 @@ def game_timer(code, duration):
         remaining -= 1
     socketio.emit("time_up", room=code)
 
+
 @socketio.on('get_word')
 def send_word(data):
     code, username = data['code'], data['username']
     if username in lobbies[code]['players']:
         emit("your_word", {"role": lobbies[code]['players'][username]["role"],
                            "word": lobbies[code]['players'][username]["word"]})
+
 
 @socketio.on('chat_message')
 def handle_chat(data):
@@ -118,12 +122,14 @@ def handle_chat(data):
     avatar = lobbies[code]['players'][username]['avatar'] if username in lobbies[code]['players'] else ''
     emit("chat_update", {"username": username, "message": data['message'], "avatar": avatar}, room=code)
 
+
 @socketio.on('start_voting')
 def start_voting(data):
     code = data['code']
     if code in lobbies and lobbies[code]['host'] == data['host']:
         lobbies[code]['voting'] = True
         emit("voting_started", lobbies[code]['players'], room=code)
+
 
 @socketio.on('vote')
 def handle_vote(data):
@@ -143,6 +149,7 @@ def handle_vote(data):
     else:
         emit("voting_update", lobbies[code]['votes'], room=code)
 
+
 @socketio.on('restart')
 def restart_game(data):
     code = data['code']
@@ -155,6 +162,6 @@ def restart_game(data):
         lobbies[code]['votes'] = {}
         emit("reset_game", room=code)
 
+
 if __name__ == '__main__':
-    # Run the application with Eventlet's WSGI server for production.
-    wsgi.server(eventlet.listen(('0.0.0.0', 5000)), app)
+    socketio.run(app, debug=True)
