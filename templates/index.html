@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spy Hunt Game</title>
+
+  <!-- Link to the favicon -->
+  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+  <div id="container">
+    <!-- Lobby Creation / Joining -->
+    <div id="lobby-container">
+      <h1>Spy Hunt Game</h1>
+      <div id="create-join">
+        <input type="text" id="username" placeholder="Enter your name">
+        <button id="createLobby">Create Lobby</button>
+        <input type="text" id="lobbyCodeInput" placeholder="Enter Lobby Code">
+        <button id="joinLobby">Join Lobby</button>
+      </div>
+      <!-- Lobby View -->
+      <div id="lobby" style="display:none;">
+        <h2>Lobby Code: <span id="lobbyCodeDisplay"></span></h2>
+        <h3>Host: <span id="lobbyHostDisplay"></span></h3>
+        <h3>Players:</h3>
+        <ul id="playerList"></ul>
+        <div id="host-controls">
+          <label>Game Duration:</label>
+          <select id="gameTime">
+            <option value="60">1 min</option>
+            <option value="120" selected>2 mins</option>
+            <option value="180">3 mins</option>
+          </select>
+          <button id="startGame">Start Game</button>
+        </div>
+      </div>
+    </div>
+    <!-- Game View -->
+    <div id="game" style="display:none;">
+      <h2>Game Started!</h2>
+      <p>Your Role: <span id="role"></span></p>
+      <p>Your Word: <span id="word"></span></p>
+      <p>Time Remaining: <span id="timerDisplay"></span></p>
+      <h3>Chat</h3>
+      <div id="chatBox"></div>
+      <input type="text" id="chatInput" placeholder="Ask a question...">
+      <button id="sendChat">Send</button>
+      <div id="votingControls" style="display:none;">
+        <button id="startVoting">Start Voting</button>
+      </div>
+    </div>
+    <!-- Voting View -->
+    <div id="voting" style="display:none;">
+      <h3>Vote for the Spy:</h3>
+      <ul id="voteList"></ul>
+    </div>
+    <!-- Game Over Result -->
+    <h2 id="gameResult" style="display:none;"></h2>
+  </div>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

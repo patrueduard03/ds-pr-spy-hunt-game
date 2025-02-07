@@ -1,0 +1,10 @@
+# Ignore files and folders that are not part of this project
+../Public\ Cloud\ Component/
+../PUBLIC\ Web\ service/
+../.idea/
+node_modules/
+venv/
+*.pyc
+__pycache__/
+*.pyocls
+.DS_Store
