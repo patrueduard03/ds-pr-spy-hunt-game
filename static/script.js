@@ -1,6 +1,7 @@
 const socket = io();
 let username, lobbyCode;
 let players = {}; // store players data
+let votes = {}; // track who voted
 
 // Create Lobby
 document.getElementById("createLobby").addEventListener("click", function() {
@@ -31,7 +32,7 @@ function showLobby(host) {
   document.getElementById("lobbyHostDisplay").innerText = host;
 }
 
-// Update Player List in Lobby
+// Update Player List in Lobby (visible to all players now)
 socket.on("update_players", function(playerData) {
   players = playerData;
   let list = document.getElementById("playerList");
@@ -93,27 +94,44 @@ socket.on("voting_started", function(playerData) {
   players = playerData;
   document.getElementById("voting").style.display = "block";
   let voteList = document.getElementById("voteList");
-  voteList.innerHTML = ""; // Clear previous votes
-
+  voteList.innerHTML = "";
   for (let player in playerData) {
     let li = document.createElement("li");
     li.innerHTML = `<img src="${playerData[player].avatar}" class="avatar"> ${player}`;
     li.onclick = function() {
-      // Emit vote and add the 'voted' class to highlight the voted player
       socket.emit("vote", { code: lobbyCode, suspect: player });
-
-      // Add the 'voted' class to highlight the voted player
-      this.classList.add('voted');
-
-      // Optionally, disable further voting after selecting
-      this.style.pointerEvents = 'none'; // Disable clicking again after voting
     };
     voteList.appendChild(li);
   }
 });
 
+// Handle player voting
+socket.on("vote_received", function(voter, suspect) {
+  votes[voter] = suspect; // Store the vote
+  highlightVotedPlayer(voter, suspect);
+});
+
+// Function to highlight voted player
+function highlightVotedPlayer(voter, suspect) {
+  let voteList = document.getElementById("voteList");
+  let listItems = voteList.getElementsByTagName("li");
+  for (let li of listItems) {
+    if (li.innerText.includes(suspect)) {
+      li.classList.add("voted"); // Apply the "voted" class to highlight the suspect
+    }
+  }
+}
+
 // Show Game Over Result
 socket.on("game_over", function(result) {
   document.getElementById("gameResult").style.display = "block";
   document.getElementById("gameResult").innerText = result;
+});
+
+// Check if all players have voted before declaring the result
+socket.on("check_all_voted", function() {
+  // Send an acknowledgement once all players have voted
+  if (Object.keys(votes).length === Object.keys(players).length) {
+    socket.emit("all_voted", { code: lobbyCode });
+  }
 });

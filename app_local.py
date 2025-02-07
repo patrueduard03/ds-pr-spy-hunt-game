@@ -66,6 +66,8 @@ def join_lobby(data):
 
     join_room(code)
     lobbies[code]['players'][username] = {"role": "Waiting", "word": "", "avatar": get_random_avatar()}
+
+    # Emit to ALL players in the lobby (including the host and the new player)
     emit("update_players", lobbies[code]['players'], room=code)
 
 

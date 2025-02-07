@@ -66,6 +66,8 @@ def join_lobby(data):
 
     join_room(code)
     lobbies[code]['players'][username] = {"role": "Waiting", "word": "", "avatar": get_random_avatar()}
+
+    # Emit to ALL players in the lobby (including the host and the new player)
     emit("update_players", lobbies[code]['players'], room=code)
 
 @socketio.on('start_game')
@@ -156,5 +158,5 @@ def restart_game(data):
         emit("reset_game", room=code)
 
 if __name__ == '__main__':
-    # Run the application with Eventlet's WSGI server for production.
-    wsgi.server(eventlet.listen(('0.0.0.0', 5000)), app)
+    # Don't need to run with wsgi.server anymore, let gunicorn handle that.
+    pass
