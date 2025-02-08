@@ -80,17 +80,16 @@ def start_game(data):
     if code in lobbies and lobbies[code]['host'] == host:
         category = random.choice(list(words.keys()))
         spy = random.choice(list(lobbies[code]['players'].keys()))
+        assigned_word = random.choice(words[category])  # Select one random word for all players
 
-        # Assign the same word to all players except the spy
-        word = random.choice(words[category])  # This word will be given to all detectives
         i = 0
         for player in lobbies[code]['players']:
             if player == spy:
                 lobbies[code]['players'][player]['role'] = "Spy"
-                lobbies[code]['players'][player]['word'] = "???"
+                lobbies[code]['players'][player]['word'] = "???"  # Spy gets "???"
             else:
                 lobbies[code]['players'][player]['role'] = "Detective"
-                lobbies[code]['players'][player]['word'] = word
+                lobbies[code]['players'][player]['word'] = assigned_word  # All detectives get the same word
 
         lobbies[code]['spy'] = spy
         lobbies[code]['category'] = category
@@ -98,6 +97,7 @@ def start_game(data):
         lobbies[code]['timer'] = duration
         emit("game_started", lobbies[code]['players'], room=code)
         socketio.start_background_task(game_timer, code, duration)
+
 
 
 def game_timer(code, duration):
