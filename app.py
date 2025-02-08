@@ -135,32 +135,34 @@ def start_voting(data):
 def handle_vote(data):
     code, suspect = data['code'], data['suspect']
     spy = lobbies[code]['spy']
+    player = data['player']
 
-    # Track vote counts and game outcome
+    # Initialize vote tracking if not already done
     if 'votes' not in lobbies[code]:
         lobbies[code]['votes'] = {player: 0 for player in lobbies[code]['players']}
-
-    # Track the vote status
     if 'voted_players' not in lobbies[code]:
         lobbies[code]['voted_players'] = set()
 
+    # Increment the vote for the suspect
     lobbies[code]['votes'][suspect] += 1
-    lobbies[code]['voted_players'].add(data['player'])  # Add the player to the voted list
+    lobbies[code]['voted_players'].add(player)  # Mark the player as voted
 
     # Check if all players have voted
     if len(lobbies[code]['voted_players']) == len(lobbies[code]['players']):
-        # Calculate the result
-        if max(lobbies[code]['votes'].values()) > len(lobbies[code]['players']) // 2:
-            result = f"Spy ({spy}) was caught! Detectives win!" if suspect == spy else f"Spy ({spy}) escaped! The category was {lobbies[code]['category']}."
+        # Once all players have voted, calculate the result
+        most_voted = max(lobbies[code]['votes'], key=lobbies[code]['votes'].get)
+        if lobbies[code]['votes'][most_voted] > len(lobbies[code]['players']) // 2:
+            # If the suspect with the most votes is the spy, detectives win
+            result = f"Spy ({spy}) was caught! Detectives win!" if most_voted == spy else f"Spy ({spy}) escaped! The category was {lobbies[code]['category']}."
             emit("game_over", result, room=code)
         else:
+            # If no majority vote, continue without declaring a winner yet
             emit("voting_update", lobbies[code]['votes'], room=code)
             # Reset votes and players for next round or phase
             lobbies[code]['votes'] = {player: 0 for player in lobbies[code]['players']}
             lobbies[code]['voted_players'] = set()  # Reset voted players for the next round
     else:
         emit("voting_update", lobbies[code]['votes'], room=code)
-
 
 
 @socketio.on('restart')
