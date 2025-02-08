@@ -150,7 +150,7 @@ def handle_vote(data):
     # Check if all players have voted
     if len(lobbies[code]['voted_players']) == len(lobbies[code]['players']):
         # If a majority votes for the spy, game over
-        if max(lobbies[code]['votes'].values()) > len(lobbies[code]['players']) // 2 + 1:
+        if max(lobbies[code]['votes'].values()) > len(lobbies[code]['players']) // 2:
             result = f"Spy ({spy}) was caught! Detectives win!" if suspect == spy else f"Spy ({spy}) escaped! The category was {lobbies[code]['category']}."
             emit("game_over", result, room=code)
         else:

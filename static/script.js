@@ -94,21 +94,29 @@ socket.on("voting_started", function(playerData) {
   players = playerData;
   document.getElementById("voting").style.display = "block";
   let voteList = document.getElementById("voteList");
-  voteList.innerHTML = "";
+  voteList.innerHTML = ""; // Clear previous list items
+
+  // Populate vote list with players
   for (let player in playerData) {
     let li = document.createElement("li");
     li.innerHTML = `<img src="${playerData[player].avatar}" class="avatar"> ${player}`;
     li.onclick = function() {
       socket.emit("vote", { code: lobbyCode, suspect: player });
+      highlightVotedPlayer(username, player); // Immediately highlight the voted player
     };
     voteList.appendChild(li);
+
+    // Optionally, mark the suspect if they were voted before
+    if (votes[username] === player) {
+      li.classList.add("voted"); // Highlight the player who has been voted by this player already
+    }
   }
 });
 
 // Handle player voting
 socket.on("vote_received", function(voter, suspect) {
   votes[voter] = suspect; // Store the vote
-  highlightVotedPlayer(voter, suspect);
+  highlightVotedPlayer(voter, suspect); // Highlight the voted player for this player
 });
 
 // Function to highlight voted player
@@ -118,6 +126,8 @@ function highlightVotedPlayer(voter, suspect) {
   for (let li of listItems) {
     if (li.innerText.includes(suspect)) {
       li.classList.add("voted"); // Apply the "voted" class to highlight the suspect
+    } else {
+      li.classList.remove("voted"); // Remove highlight from other players
     }
   }
 }
