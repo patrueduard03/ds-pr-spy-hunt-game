@@ -1,131 +1,136 @@
 /* Global Styles */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f4f4f9; /* Light, neutral background */
+  font-family: 'Inter', sans-serif;
+  background: #f0f2f5;
   margin: 0;
   padding: 0;
-  color: #333; /* Dark text for contrast */
+  color: #333;
   line-height: 1.6;
 }
 
 #container {
-  width: 90%;
-  max-width: 700px;
+  width: 95%;
+  max-width: 750px;
   margin: 40px auto;
-  background: #ffffff; /* White background for container */
-  border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-  padding: 25px;
-  transition: transform 0.3s ease-in-out;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 #container:hover {
   transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
 
 /* Headers */
 h1, h2, h3 {
-  margin: 15px 0;
-  color: #2c3e50; /* Darker color for text */
-  font-weight: 600;
+  margin: 20px 0;
+  color: #1a1a2e;
+  font-weight: 700;
 }
 
 /* Buttons */
 button {
-  padding: 12px 20px;
-  margin: 10px 0;
+  padding: 14px 22px;
+  margin: 12px 0;
   border: none;
-  border-radius: 5px;
-  background-color: #5a6b8d; /* Muted blue-gray color for buttons */
-  color: #fff;
+  border-radius: 8px;
+  background-color: #0077ff;
+  color: #ffffff;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 button:hover {
-  background-color: #4a5c73; /* Darker shade on hover */
-  transform: scale(1.05);
+  background-color: #005ecb;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 119, 255, 0.3);
 }
 
 button:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(90, 107, 141, 0.5);
+  box-shadow: 0 0 0 4px rgba(0, 119, 255, 0.4);
 }
 
 /* Inputs and Select */
 input, select {
-  padding: 12px;
-  margin: 8px 0;
+  padding: 14px;
+  margin: 10px 0;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 1rem;
   width: 100%;
   box-sizing: border-box;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 input:focus, select:focus {
-  border-color: #5a6b8d; /* Focus color to match button */
+  border-color: #0077ff;
   outline: none;
+  box-shadow: 0 0 8px rgba(0, 119, 255, 0.3);
 }
 
 /* Lobby Section */
 #lobby-container {
-  margin-bottom: 30px;
+  margin-bottom: 35px;
 }
 
 /* Chat Box */
 #chatBox {
-  height: 250px;
+  height: 300px;
   overflow-y: auto;
-  padding: 15px;
-  background: #f7f7f7; /* Subtle background for chat */
-  border-radius: 8px;
-  margin-bottom: 15px;
+  padding: 18px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  margin-bottom: 18px;
   border: 1px solid #ddd;
   box-sizing: border-box;
 }
 
 #chatBox .message {
   display: flex;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .chat-avatar {
-  width: 45px;
-  height: 45px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   margin-right: 15px;
 }
 
 .chat-content {
   max-width: 85%;
-  background: #fff;
-  padding: 10px 15px;
-  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px 18px;
+  border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .chat-content p {
   margin: 0;
-  color: #555;
+  color: #444;
 }
 
 /* Player & Vote List */
 #playerList li, #voteList li {
   list-style: none;
-  padding: 12px;
-  background: #f9f9f9; /* Subtle background for lists */
+  padding: 14px;
+  background: #f4f4f9;
   margin: 8px 0;
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
 #playerList li:hover, #voteList li:hover {
-  background: #e1e1e1; /* Slightly darker on hover */
+  background: #e6e6fa;
+  transform: scale(1.02);
 }
 
 #voteList li {
@@ -133,28 +138,28 @@ input:focus, select:focus {
 }
 
 #voteList li:active {
-  background-color: #d0d0d0; /* Active state color */
+  background-color: #d4d4f7;
 }
 
 /* Highlight the voted player */
 #voteList li.voted {
-  background-color: #cfe2f3; /* Light blue highlight for voted option */
+  background-color: #90caf9;
   font-weight: bold;
-  border: 2px solid #5b98b5; /* Border to make it more prominent */
+  border: 2px solid #1976d2;
 }
 
 #voteList li.voted:hover {
-  background-color: #b0c8e2; /* Slightly darker on hover */
+  background-color: #64b5f6;
 }
 
 /* Mobile Responsiveness */
 @media screen and (max-width: 768px) {
   #container {
-    padding: 15px;
+    padding: 18px;
   }
 
   h1 {
-    font-size: 1.8rem;
+    font-size: 1.7rem;
   }
 
   h2, h3 {
@@ -162,26 +167,27 @@ input:focus, select:focus {
   }
 
   input, button, select {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 }
 
 @media screen and (max-width: 480px) {
   #container {
     width: 100%;
-    padding: 10px;
+    padding: 15px;
   }
 
   h1 {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
   }
 
   button {
-    padding: 10px;
-    font-size: 0.95rem;
+    padding: 12px;
+    font-size: 0.9rem;
   }
 
   input, select {
-    padding: 10px;
+    padding: 12px;
+    font-size: 0.9rem;
   }
 }

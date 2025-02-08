@@ -12,23 +12,19 @@ words = {
     "Cities": ["Paris", "New York", "Tokyo", "Berlin"]
 }
 
-
 def generate_lobby_code():
     while True:
         code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
         if code not in lobbies:  # Ensure code is unique
             return code
 
-
 def get_random_avatar():
     # Using RoboHash to generate a random funny avatar
     return f"https://robohash.org/{random.randint(1, 100000)}.png?size=50x50"
 
-
 @app.route('/')
 def index():
     return render_template('index.html')
-
 
 @socketio.on('create_lobby')
 def create_lobby(host):
@@ -45,7 +41,6 @@ def create_lobby(host):
     join_room(code)
     lobbies[code]['players'][host] = {"role": "Waiting", "word": "", "avatar": get_random_avatar()}
     emit("lobby_created", {"code": code, "host": host}, room=code)
-
 
 @socketio.on('join_lobby')
 def join_lobby(data):
@@ -69,7 +64,6 @@ def join_lobby(data):
 
     # Emit to ALL players in the lobby (including the host and the new player)
     emit("update_players", lobbies[code]['players'], room=code)
-
 
 @socketio.on('start_game')
 def start_game(data):
@@ -99,7 +93,6 @@ def start_game(data):
         socketio.start_background_task(game_timer, code, duration)
 
 
-
 def game_timer(code, duration):
     remaining = duration
     while remaining >= 0:
@@ -107,7 +100,6 @@ def game_timer(code, duration):
         time.sleep(1)
         remaining -= 1
     socketio.emit("time_up", room=code)
-
 
 @socketio.on('get_word')
 def send_word(data):
@@ -122,7 +114,6 @@ def handle_chat(data):
     username = data['username']
     avatar = lobbies[code]['players'][username]['avatar'] if username in lobbies[code]['players'] else ''
     emit("chat_update", {"username": username, "message": data['message'], "avatar": avatar}, room=code)
-
 
 @socketio.on('start_voting')
 def start_voting(data):
@@ -141,12 +132,24 @@ def handle_vote(data):
     if 'votes' not in lobbies[code]:
         lobbies[code]['votes'] = {player: 0 for player in lobbies[code]['players']}
 
-    lobbies[code]['votes'][suspect] += 1
+    # Track the vote status
+    if 'voted_players' not in lobbies[code]:
+        lobbies[code]['voted_players'] = set()
 
-    # If a majority votes for the spy, game over
-    if max(lobbies[code]['votes'].values()) > len(lobbies[code]['players']) // 2:
-        result = f"Spy ({spy}) was caught! Detectives win!" if suspect == spy else f"Spy ({spy}) escaped! The category was {lobbies[code]['category']}."
-        emit("game_over", result, room=code)
+    lobbies[code]['votes'][suspect] += 1
+    lobbies[code]['voted_players'].add(data['player'])  # Add the player to the voted list
+
+    # Check if all players have voted
+    if len(lobbies[code]['voted_players']) == len(lobbies[code]['players']):
+        # If a majority votes for the spy, game over
+        if max(lobbies[code]['votes'].values()) > len(lobbies[code]['players']) // 2 + 1:
+            result = f"Spy ({spy}) was caught! Detectives win!" if suspect == spy else f"Spy ({spy}) escaped! The category was {lobbies[code]['category']}."
+            emit("game_over", result, room=code)
+        else:
+            emit("voting_update", lobbies[code]['votes'], room=code)
+            # Reset votes and players for next round or phase
+            lobbies[code]['votes'] = {player: 0 for player in lobbies[code]['players']}
+            lobbies[code]['voted_players'] = set()  # Reset voted players for the next round
     else:
         emit("voting_update", lobbies[code]['votes'], room=code)
 
@@ -162,6 +165,7 @@ def restart_game(data):
         lobbies[code]['voting'] = False
         lobbies[code]['votes'] = {}
         emit("reset_game", room=code)
+
 
 
 if __name__ == '__main__':

@@ -127,6 +127,7 @@ def start_voting(data):
         lobbies[code]['voting'] = True
         emit("voting_started", lobbies[code]['players'], room=code)
 
+
 @socketio.on('vote')
 def handle_vote(data):
     code, suspect = data['code'], data['suspect']
@@ -136,14 +137,27 @@ def handle_vote(data):
     if 'votes' not in lobbies[code]:
         lobbies[code]['votes'] = {player: 0 for player in lobbies[code]['players']}
 
-    lobbies[code]['votes'][suspect] += 1
+    # Track the vote status
+    if 'voted_players' not in lobbies[code]:
+        lobbies[code]['voted_players'] = set()
 
-    # If a majority votes for the spy, game over
-    if max(lobbies[code]['votes'].values()) > len(lobbies[code]['players']) // 2:
-        result = f"Spy ({spy}) was caught! Detectives win!" if suspect == spy else f"Spy ({spy}) escaped! The category was {lobbies[code]['category']}."
-        emit("game_over", result, room=code)
+    lobbies[code]['votes'][suspect] += 1
+    lobbies[code]['voted_players'].add(data['player'])  # Add the player to the voted list
+
+    # Check if all players have voted
+    if len(lobbies[code]['voted_players']) == len(lobbies[code]['players']):
+        # If a majority votes for the spy, game over
+        if max(lobbies[code]['votes'].values()) > len(lobbies[code]['players']) // 2 + 1:
+            result = f"Spy ({spy}) was caught! Detectives win!" if suspect == spy else f"Spy ({spy}) escaped! The category was {lobbies[code]['category']}."
+            emit("game_over", result, room=code)
+        else:
+            emit("voting_update", lobbies[code]['votes'], room=code)
+            # Reset votes and players for next round or phase
+            lobbies[code]['votes'] = {player: 0 for player in lobbies[code]['players']}
+            lobbies[code]['voted_players'] = set()  # Reset voted players for the next round
     else:
         emit("voting_update", lobbies[code]['votes'], room=code)
+
 
 @socketio.on('restart')
 def restart_game(data):
