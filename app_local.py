@@ -62,8 +62,12 @@ def join_lobby(data):
     join_room(code)
     lobbies[code]['players'][username] = {"role": "Waiting", "word": "", "avatar": get_random_avatar()}
 
-    # Emit to ALL players in the lobby (including the host and the new player)
+    # Emit the updated player list to ALL players in the lobby
     emit("update_players", lobbies[code]['players'], room=code)
+
+    # Also emit to the new player specifically, so they know the list of players
+    emit("update_players", lobbies[code]['players'], room=request.sid)
+
 
 @socketio.on('start_game')
 def start_game(data):
