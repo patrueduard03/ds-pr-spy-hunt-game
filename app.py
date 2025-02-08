@@ -149,7 +149,7 @@ def handle_vote(data):
 
     # Check if all players have voted
     if len(lobbies[code]['voted_players']) == len(lobbies[code]['players']):
-        # If a majority votes for the spy, game over
+        # Calculate the result
         if max(lobbies[code]['votes'].values()) > len(lobbies[code]['players']) // 2:
             result = f"Spy ({spy}) was caught! Detectives win!" if suspect == spy else f"Spy ({spy}) escaped! The category was {lobbies[code]['category']}."
             emit("game_over", result, room=code)
@@ -160,6 +160,7 @@ def handle_vote(data):
             lobbies[code]['voted_players'] = set()  # Reset voted players for the next round
     else:
         emit("voting_update", lobbies[code]['votes'], room=code)
+
 
 
 @socketio.on('restart')
