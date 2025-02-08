@@ -119,18 +119,24 @@ socket.on("vote_received", function(voter, suspect) {
   highlightVotedPlayer(voter, suspect); // Highlight the voted player for this player
 });
 
-// Function to highlight voted player
+// Function to highlight the voted player
 function highlightVotedPlayer(voter, suspect) {
   let voteList = document.getElementById("voteList");
   let listItems = voteList.getElementsByTagName("li");
+
+  // First, remove the "voted" class from all list items
+  for (let li of listItems) {
+    li.classList.remove("voted"); // Remove the "voted" highlight from all items
+  }
+
+  // Then, apply the "voted" class to the selected suspect
   for (let li of listItems) {
     if (li.innerText.includes(suspect)) {
-      li.classList.add("voted"); // Apply the "voted" class to highlight the suspect
-    } else {
-      li.classList.remove("voted"); // Remove highlight from other players
+      li.classList.add("voted"); // Highlight the suspect
     }
   }
 }
+
 
 // Show Game Over Result
 socket.on("game_over", function(result) {
