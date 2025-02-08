@@ -80,8 +80,9 @@ def start_game(data):
     if code in lobbies and lobbies[code]['host'] == host:
         category = random.choice(list(words.keys()))
         spy = random.choice(list(lobbies[code]['players'].keys()))
-        assigned_words = random.sample(words[category], len(lobbies[code]['players']) - 1)
 
+        # Assign the same word to all players except the spy
+        word = random.choice(words[category])  # This word will be given to all detectives
         i = 0
         for player in lobbies[code]['players']:
             if player == spy:
@@ -89,8 +90,7 @@ def start_game(data):
                 lobbies[code]['players'][player]['word'] = "???"
             else:
                 lobbies[code]['players'][player]['role'] = "Detective"
-                lobbies[code]['players'][player]['word'] = assigned_words[i]
-                i += 1
+                lobbies[code]['players'][player]['word'] = word
 
         lobbies[code]['spy'] = spy
         lobbies[code]['category'] = category
@@ -115,7 +115,6 @@ def send_word(data):
     if username in lobbies[code]['players']:
         emit("your_word", {"role": lobbies[code]['players'][username]["role"],
                            "word": lobbies[code]['players'][username]["word"]})
-
 
 @socketio.on('chat_message')
 def handle_chat(data):

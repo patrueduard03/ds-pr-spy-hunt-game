@@ -56,7 +56,7 @@ socket.on("game_started", function(playerData) {
   document.getElementById("game").style.display = "block";
   document.getElementById("lobby-container").style.display = "none";
   document.getElementById("role").innerText = players[username].role;
-  document.getElementById("word").innerText = players[username].word;
+  document.getElementById("word").innerText = players[username].word;  // Show the word for the player
 });
 
 // Timer update
